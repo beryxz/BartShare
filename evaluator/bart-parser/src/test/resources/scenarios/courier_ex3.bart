@@ -1,0 +1,47 @@
+# R1
+(party : (service : "delivery")(company : "RabbitService"),
+ rules : (resource : (type : "addrInfo")(city : "Lucca"),
+          condition : requester.company = "RabbitService")
+         (resource : (type : "addrInfo")(city : "Lucca"),
+          condition : not(requester.company = "RabbitService"),
+          exchange : (to : me,
+                      resource : (type : "addrInfo")(city : "Prato"),
+                      from : requester)
+        ))
+
+
+# F′
+(party : (service : "delivery")(company : "FastAndFurious"),
+ rules : (resource : (type : "addrInfo")(city : "Prato"),
+          exchange : (
+                        to : me,
+                        resource : (type : "addrInfo")(city : "Lucca"),
+                        from : ( any : (service : "delivery")(company : "RabbitService"))
+                     )
+                     and
+                     (
+                        to : me,
+                        resource :(type : "addrInfo")(city : "Grosseto"),
+                        from : (any : (service : "delivery")(company : "RabbitService"))
+                     )
+         )
+)
+
+
+# R2
+(
+    party : (service : "delivery")(company : "RabbitService"),
+    rules : (
+                resource : (type : "addrInfo")(city : "Grosseto")
+            )
+)
+
+
+# Context
+((),(),())
+
+
+
+# Request
+1 : (resource : (type : "addrInfo")(city : "Prato"),
+     from : (any : (service : "delivery")(company : "FastAndFurious")))

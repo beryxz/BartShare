@@ -1,0 +1,15 @@
+# vim: set filetype=yaml :
+include:
+  - test/**/*.@(js|ts)
+exclude:
+  - test/support/**
+typecheck: false
+# node-arg applies to every tap invocation. Keep these here rather than in the npm
+# scripts: a `--node-arg` on the command line REPLACES this list instead of appending to it,
+# so splitting them across the two silently drops one.
+node-arg:
+  - --env-file=.env.test
+  - --require=./test/support/ts-project.cjs
+  - --require=./test/support/short-pool.cjs
+plugin:
+  - "!@tapjs/mock"

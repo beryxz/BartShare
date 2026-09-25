@@ -1,0 +1,20 @@
+ANTLR_CP := "/usr/share/java/antlr-complete.jar"
+GDIR     := "src/main/antlr4/com/thesis/bartparser"
+
+# generate + compile the grammar into ./dist (flat, package-less classes so
+# grun/TestRig can load them by bare name). cd into the grammar dir first so
+# ANTLR does not mirror the nested path into the output.
+build:
+    cd {{GDIR}} && antlr4 -Dlanguage=Java -o {{justfile_directory()}}/dist Bart.g4
+    javac -cp "{{ANTLR_CP}}" dist/*.java
+
+# Run ANTLR TestRig (grun) from the module root, so input paths are repo-relative.
+# START is a grammar entry rule: scenarioFile | policySystemFile | policyFile
+#                              | contextFile | enrichedRequestFile
+# Examples:
+#   just run scenarioFile -gui    src/test/resources/scenarios/ex1_basic.bart
+#   just run scenarioFile -tree   src/test/resources/scenarios/ex1_basic.bart
+#   just run scenarioFile -tokens src/test/resources/scenarios/ex1_basic.bart
+#   just run policyFile   -tree   # (no file -> reads from stdin)
+run START="scenarioFile" *opts:
+    java -cp "dist:{{ANTLR_CP}}" org.antlr.v4.gui.TestRig Bart {{START}} {{opts}}

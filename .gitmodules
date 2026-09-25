@@ -1,0 +1,4 @@
+[submodule "evaluator/bart"]
+	path = evaluator/bart
+	url = https://github.com/beryxz/bart
+	branch = master

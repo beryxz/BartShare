@@ -1,0 +1,21 @@
+# Esempio con John, Mary, David
+
+# PS
+(party:(username:"john")(studyLevel:"undergraduate")(degreeProgram:"cs")(university:"unifi")(enrollment:"2024"),
+ rules:(resource:(type:"lectureNotes")(course:"programming")(teacher:"smith")(year:"24/25"))
+       (resource:(type:"exercises")(course:"programming")(year:"24/25"),
+        condition:(requester.username in friends)))
+(party:(username:"mary")(studyLevel:"undergraduate")(degreeProgram:"cs")(university:"unifi")(enrollment:"2023"),
+ rules:(resource:(type:"lectureNotes")(course:"ads")(teacher:"doe")(year:"23/24"),
+        exchange:(to:me, resource:(type:"exercises"), from:requester)
+                   or (to:me, resource:(type:"lectureNotes"), from:requester)))
+(party:(username:"david")(studyLevel:"undergraduate")(degreeProgram:"cs")(university:"unifi")(enrollment:"2023"),
+ rules:())
+
+
+# Context
+((friends:{"ashley","david"}),(friends:{"david","linda","steven"}),(friends:{}))
+
+# EnrichedRequest
+1 : (resource:(type:"lectureNotes")(course:"ads"),
+     from:(any:(studyLevel:"undergraduate")(degreeProgram:"cs")(university:"unifi")))

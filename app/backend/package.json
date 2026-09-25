@@ -1,0 +1,54 @@
+{
+    "name": "bartshare-api",
+    "version": "1.0.0",
+    "private": true,
+    "license": "GPL-3.0-or-later",
+    "main": "build/index.js",
+    "scripts": {
+        "dev": "node --watch-path=src --watch-path=.env --env-file=.env -r ts-node/register src/index.ts",
+        "start": "node --env-file-if-exists=.env build/index.js",
+        "build": "tsc -p tsconfig.json",
+        "build-start": "npm run build && npm run start",
+        "debug": "node --inspect --watch-path=src --watch-path=.env --env-file=.env -r ts-node/register src/index.ts",
+        "test": "tsc -p tsconfig.typecheck.json && npm run test:unit --",
+        "test:unit": "f() { tap --statements=95 --branches=85 --functions=90 --lines=95 \"$@\"; RET=$?; npm run test:stop_db; exit $RET; }; f",
+        "test:unit:report": "npm run test:unit -- --coverage-report=html --no-browser",
+        "pretest:unit": "(npm run test:stop_db || true) && npm run test:start_db",
+        "test:start_db": "f() { for i in $(seq 60); do docker exec bartshare-testing-db pg_isready -q -h 127.0.0.1 -U postgres 2>/dev/null && return 0; sleep 0.5; done; echo 'test db never became ready' >&2; return 1; }; docker run --rm -d --name bartshare-testing-db -p \"127.0.0.1:15400:5432\" -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=bartshare-testing postgres:17.7-bookworm && f",
+        "test:stop_db": "docker stop bartshare-testing-db",
+        "lint": "eslint",
+        "prettier": "prettier src/ test/ docs/ README.md --write",
+        "prettier:check": "prettier src/ test/ docs/ README.md --check"
+    },
+    "dependencies": {
+        "fastify": "^5.12.1",
+        "fastify-plugin": "^6.0.0",
+        "@fastify/cookie": "^11.1.2",
+        "@fastify/cors": "^11.3.0",
+        "@fastify/swagger": "^9.8.1",
+        "@fastify/type-provider-typebox": "^6.1.0",
+        "pg": "^8.23.0",
+        "pg-hstore": "^2.3.4",
+        "sequelize": "^6.37.8",
+        "typebox": "^1.3.16",
+        "validator": "^13.15.35"
+    },
+    "devDependencies": {
+        "@types/node": "^26.2.0",
+        "@types/pg": "^8.23.1",
+        "typescript": "^6.0.3",
+        "ts-node": "^10.9.2",
+        "@swc/core": "^1.16.1",
+        "tap": "^21.7.5",
+        "eslint": "^10.9.0",
+        "@eslint/js": "^10.0.1",
+        "typescript-eslint": "^8.67.0",
+        "globals": "^17.11.0",
+        "prettier": "3.9.6"
+    },
+    "overrides": {
+        "sequelize": {
+            "uuid": "^11.1.1"
+        }
+    }
+}

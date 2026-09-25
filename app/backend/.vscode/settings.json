@@ -1,0 +1,46 @@
+{
+    "eslint.enable": true,
+    "files.autoSave": "onFocusChange",
+    "files.autoSaveWhenNoErrors": true,
+    "editor.formatOnSave": false,
+    "prettier.configPath": ".prettierrc.yaml",
+    "[typescript]": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.codeActionsOnSave": {
+            "source.removeUnusedImports": "always",
+            "source.organizeImports": "always",
+            "source.sortImports": "always",
+            "source.removeUnused.ts": "never",
+            "source.fixAll.ts": "never",
+            "source.addMissingImports.ts": "never"
+        }
+    },
+    "[javascript]": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.codeActionsOnSave": {
+            "source.removeUnusedImports": "always",
+            "source.organizeImports": "always",
+            "source.sortImports": "always",
+            "source.removeUnused.ts": "never",
+            "source.fixAll.ts": "never",
+            "source.addMissingImports.ts": "never"
+        }
+    },
+    "colorInfo.languages": [
+        {
+            "selector": "css",
+            "colors": "css"
+        },
+        {
+            "selector": "sass",
+            "colors": "css"
+        },
+        {
+            "selector": "typescript",
+            "colors": "css"
+        },
+    ],
+    "colorInfo.fields": ["hex","css-color-name","rgb","alpha","hsl","preview"]
+}

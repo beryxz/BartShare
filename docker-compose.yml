@@ -1,0 +1,114 @@
+services:
+  proxy:
+    image: nginx:1.30
+    read_only: true
+    ports:
+      - 127.0.0.1:8000:80
+    volumes:
+      - ./infra/app.nginx.conf:/etc/nginx/nginx.conf:ro
+      # nginx read-only requirements
+      - type: tmpfs
+        target: /var/cache/nginx
+      - type: tmpfs
+        target: /var/run
+    environment:
+      - TZ=Europe/Rome
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "-o", "/dev/null", "http://127.0.0.1/healthz"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+      start_interval: 1s
+    restart: unless-stopped
+    depends_on:
+      app-frontend:
+        condition: service_healthy
+
+  bart-wrapper:
+    build:
+      context: ./evaluator
+      dockerfile: Dockerfile
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "-o", "/dev/null", "http://127.0.0.1:8080/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 15s
+      start_interval: 1s
+    restart: unless-stopped
+
+  db:
+    image: postgres:17-bookworm
+    shm_size: 128mb
+    environment:
+      TZ: "Europe/Rome"
+      POSTGRES_DB: "bartshare"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+      # psql user for healthcheck - use the same in POSTGRES_USER
+      PGUSER: "postgres"
+    volumes:
+      - bart-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-d", "bartshare"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+      start_interval: 1s
+    restart: unless-stopped
+
+  app-backend:
+    build:
+      context: ./app/backend
+      dockerfile: Dockerfile
+    environment:
+      # === APP config ===
+      # DEBUG: "false"
+      # NODE_ENV: "production"
+      # LOGGING: "false"
+      DEBUG: "true"
+      NODE_ENV: "development"
+      LOGGING: "true"
+      TZ: "Europe/Rome"
+      DB_CONNECTION_STRING: "postgres://postgres:postgres@db/bartshare"
+      # === API config ===
+      API_HOST: "0.0.0.0"
+      API_PORT: "8081"
+      EVALUATOR_URL: "http://bart-wrapper:8080"
+      EVALUATOR_TIMEOUT_MS: "10000"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8081/api/v1/healthz"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+      start_interval: 1s
+    depends_on:
+      db:
+        condition: service_healthy
+      bart-wrapper:
+        condition: service_healthy
+    restart: unless-stopped
+
+  app-frontend:
+    build:
+      context: ./app/frontend
+      dockerfile: Dockerfile
+    environment:
+      TZ: "Europe/Rome"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:3000/healthz"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+      start_interval: 1s
+    depends_on:
+      app-backend:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  bart-db:

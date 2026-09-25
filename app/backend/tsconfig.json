@@ -1,0 +1,33 @@
+/* Visit https://aka.ms/tsconfig to read more about this file */
+{
+    "compilerOptions": {
+        "target": "es2025",
+        "module": "nodenext",
+        "rootDir": "./src",
+        "moduleResolution": "nodenext",
+        "typeRoots": [
+            "./src/types"
+        ],
+        "resolveJsonModule": true ,
+        "declaration": false ,
+        "sourceMap": false ,
+        "inlineSourceMap": false,
+        "outDir": "./build",
+        "removeComments": true,
+        "esModuleInterop": true,
+        "forceConsistentCasingInFileNames": true,
+        "strict": true,
+        "noImplicitAny": true,
+        "skipLibCheck": true,
+    },
+    "include": [
+        "src/**/*"
+    ],
+    // `files: true` makes ts-node (and so tap's --typecheck) load the tsconfig
+    // `include` set, not just each entry file's import graph. Without it the
+    // `declare module 'fastify'` augmentation in src/types/fastify.d.ts is
+    // invisible to any test that does not transitively import it.
+    "ts-node": {
+        "files": true
+    },
+}

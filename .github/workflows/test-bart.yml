@@ -1,0 +1,37 @@
+name: Run bart related tests
+
+on:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    working-directory: ./evaluator
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          submodules: true
+      - name: Set up JDK 25
+        uses: actions/setup-java@v4
+        with:
+          java-version: '25'
+          distribution: 'corretto'
+          cache: maven
+      # install, not just package, so the mutation steps below can resolve their dependencies from ~/.m2
+      - name: Build, test and format-check
+        run: mvn --batch-mode --no-transfer-progress clean install
+      - name: Mutation testing (bart-parser)
+        working-directory: ./evaluator/bart-parser
+        run: mvn --batch-mode --no-transfer-progress org.pitest:pitest-maven:mutationCoverage
+      - name: Mutation testing (bart-wrapper)
+        working-directory: ./evaluator/bart-wrapper
+        run: mvn --batch-mode --no-transfer-progress org.pitest:pitest-maven:mutationCoverage

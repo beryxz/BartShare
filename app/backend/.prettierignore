@@ -1,0 +1,5 @@
+.idea
+.next
+.tap
+node_modules
+*.min.js

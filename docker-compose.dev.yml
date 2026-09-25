@@ -1,0 +1,30 @@
+# Development only. Republishes the host ports the proxy-only default stack
+# keeps closed, so `npm run dev` in app/backend or app/frontend can reach the
+# database, the evaluator and the API directly. It also rebuilds app-frontend
+# against the backend origin, since a container reached on :3000 is not behind
+# the proxy; that build arg is why `--build` is required rather than optional.
+#
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
+#
+# Deliberately NOT named docker-compose.override.yml: Compose applies that one
+# automatically, which would silently reopen every port in the default stack.
+services:
+  bart-wrapper:
+    ports:
+      - "127.0.0.1:8080:8080"
+
+  db:
+    ports:
+      - "127.0.0.1:55433:5432"
+
+  app-backend:
+    ports:
+      - "127.0.0.1:8081:8081"
+
+  app-frontend:
+    build:
+      args:
+        # external host reachable by the browser. Rebuild if changed
+        NEXT_PUBLIC_API_HOST: "http://localhost:8081"
+    ports:
+      - "127.0.0.1:3000:3000"
